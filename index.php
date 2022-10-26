@@ -3,10 +3,11 @@
 $lieufin = "SELECT * FROM lieu WHERE nom_lieu LIKE '%um'";
 
 //2
-$nomdepersonnage = "SELECT nom_lieu, id_personnage
-                    FROM personnage
-                    INNER JOIN lieu ON personnage.id_personnage = lieu.id_lieu
-                    ORDER BY nom_lieu DESC";
+$nomdepersonnage = "SELECT nom_lieu, COUNT(p.id_lieu) AS nbLieu
+                    FROM personnage p
+                    INNER JOIN lieu l ON l.id_lieu = p.id_lieu
+                    GROUP BY l.id_lieu
+                    ORDER BY nbLieu";
 
 //3
 $nompal =   "SELECT p.nom_personnage, s.nom_specialite, p.adresse_personnage, l.nom_lieu
@@ -44,6 +45,46 @@ $ingsante = "SELECT nom_ingredient, cout_ingredient, c.qte
             WHERE p.id_potion = 3";
 
 //8
+$nbCasque = "SELECT p.nom_personnage, SUM(pc.qte) AS nbCasque
+            FROM personnage p, bataille b, prendre_casque pc
+            WHERE p.id_personnage = pc.id_personnage
+                AND b.id_bataille = pc.id_bataille
+                AND b.nom_bataille = 'Bataille du village gaulois'
+            GROUP BY p.id_personnage";
+
+//9
+$qtyboire = "SELECT p.nom_personnage, SUM(b.dose_boire) AS qttBoire
+            FROM personnage p, boire b
+            WHERE p.id_personnage = b.id_personnage
+            GROUP BY p.id_personnage
+            ORDER BY qttBoire DESC";
+
+//10
+$nombataille = "SELECT b.nom_bataille, SUM(pc.qte) AS nbCasque
+                FROM bataille b
+                INNER JOIN prendre_casque pc ON b.id_bataille = pc.id_bataille
+                GROUP BY b.id_bataille
+                    HAVING nbCasque >= ALL(
+                        SELECT SUM(pc.qte)
+                        FROM prendre_casque pc
+                        INNER JOIN bataille b ON pc.id_bataille = b.id_bataille
+                        GROUP BY pc.id_bataille)";
+
+//11
+$typeCasque = "SELECT t.nom_type_casque, t.id_type_casque, COUNT(t.id_type_casque), SUM(c.cout_casque) AS sumPrix
+                FROM type_casque t
+                INNER JOIN casque c ON c.id_type_casque = t.id_type_casque
+                GROUP BY t.id_type_casque
+                ORDER BY sumPrix DESC";
+
+//12
+$potionfrais = "SELECT p.nom_potion
+                FROM potion p
+                INNER JOIN composer c ON c.id_potion = p.id_potion
+                INNER JOIN ingredient i ON i.id_ingredient = c.id_ingredient
+                WHERE i.id_ingredient = 24";
+
+//13
 
 
 
