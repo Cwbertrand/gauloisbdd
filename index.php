@@ -50,7 +50,13 @@ $nbCasque = "SELECT p.nom_personnage, SUM(pc.qte) AS nbCasque
             WHERE p.id_personnage = pc.id_personnage
                 AND b.id_bataille = pc.id_bataille
                 AND b.nom_bataille = 'Bataille du village gaulois'
-            GROUP BY p.id_personnage";
+            GROUP BY p.id_personnage
+                HAVING nbCasque >= ALL(
+                    SELECT SUM(pc.qte)
+                    FROM prendre_casque pc, bataille b
+                    WHERE b.id_bataille = pc.id_bataille
+                        AND b.nom_bataille ='Bataille du village gaulois'
+                    GROUP BY pc.id_personnage)";
 
 //9
 $qtyboire = "SELECT p.nom_personnage, SUM(b.dose_boire) AS qttBoire
@@ -85,6 +91,34 @@ $potionfrais = "SELECT p.nom_potion
                 WHERE i.id_ingredient = 24";
 
 //13
+$ndporpular =   "SELECT l.nom_lieu, COUNT(p.id_lieu) AS nbPeople
+                FROM lieu l
+                INNER JOIN personnage p ON p.id_lieu =l.id_lieu
+                GROUP BY l.id_lieu
+                    HAVING nbPeople >=ALL(
+                        SELECT COUNT(p.id_lieu)
+                        FROM personnage p
+                        INNER JOIN lieu l ON l.id_lieu = p.id_lieu
+                        WHERE l.nom_lieu <> 'Village gaulois'
+                        GROUP BY l.id_lieu)
+                        AND l.nom_lieu <> 'Village gaulois'";
+
+//14
+$nonbu =    "SELECT p.nom_personnage
+            FROM personnage p
+            WHERE p.id_personnage NOT IN (SELECT b.id_personnage
+            FROM boire b)";
+
+//15
+$pasaut =   "SELECT p.nom_personnage
+            FROM personnage p
+            WHERE p.id_personnage NOT IN (SELECT a.id_personnage
+            FROM autoriser_boire a
+            INNER JOIN potion po ON po.id_potion = a.id_potion
+            WHERE po.id_potion <> 1 )";
+
+
+//A
 
 
 
